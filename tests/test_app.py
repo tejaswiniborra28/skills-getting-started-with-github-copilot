@@ -29,6 +29,28 @@ def reset_activities():
 client = TestClient(app)
 
 
+def test_signup_adds_participant_to_activity():
+    activity_name = "Chess Club"
+    email = "student@example.com"
+
+    response = client.post(f"/activities/{activity_name}/signup?email={email}")
+
+    assert response.status_code == 200
+    assert email in activities[activity_name]["participants"]
+
+
+def test_duplicate_signup_is_rejected():
+    activity_name = "Chess Club"
+    email = "student@example.com"
+
+    first_response = client.post(f"/activities/{activity_name}/signup?email={email}")
+    second_response = client.post(f"/activities/{activity_name}/signup?email={email}")
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 400
+    assert activities[activity_name]["participants"].count(email) == 1
+
+
 def test_unregister_participant_removes_them_from_activity():
     activity_name = "Chess Club"
     email = "student@example.com"
